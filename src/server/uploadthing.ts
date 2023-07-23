@@ -1,7 +1,5 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next-legacy";
 
-import { getAuth } from "@clerk/nextjs/server";
-
 const f = createUploadthing();
 
 // FileRouter for your app, can contain multiple FileRoutes
@@ -12,14 +10,19 @@ export const ourFileRouter = {
     // eslint-disable-next-line
     .middleware(async ({ req, res }) => {
       // This code runs on your server before upload
-      const { user } = getAuth(req);
-      console.log("user", user);
+      try {
+        // eslint-disable-next-line
+        const { userId } = JSON.parse(req.body) as { userId: string };
 
-      // If you throw, the user will not be able to upload
-      if (!user) throw new Error("Unauthorized");
+        // If you throw, the user will not be able to upload
+        if (!userId) throw new Error("Unauthorized");
 
-      // Whatever is returned here is accessible in onUploadComplete as `metadata`
-      return { userId: user.id };
+        // Whatever is returned here is accessible in onUploadComplete as `metadata`
+        return { userId: userId };
+      } catch (e) {
+        console.log("Error", e);
+      }
+      return { userId: null };
     })
     // eslint-disable-next-line
     .onUploadComplete(async ({ metadata, file }) => {
