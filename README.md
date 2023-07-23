@@ -1,5 +1,72 @@
 # Clerk Uploadthing Middleware Clash
 
+## Solution 🎉
+
+Check the commit 6cafe0a0 changes to show what solved it, I'll also explain below
+
+I'd like to say a massive thanks to the team at Clerk, specifically @perkinsjr who helped me get to the bottom if it.
+
+- Run getAuth in the API before calling the handler
+- Pass in any data you want into the body of the request
+
+Endpoint at src/pages/api/uploadthing.ts:
+
+```typescript
+import { createNextPageApiHandler } from "uploadthing/next-legacy";
+import { ourFileRouter } from "@/server/uploadthing";
+import { getAuth } from "@clerk/nextjs/server";
+import type { NextApiRequest, NextApiResponse } from "next";
+
+const handler = createNextPageApiHandler({
+  router: ourFileRouter,
+});
+
+export default async function uploadthing(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  // Do something before the uploadthing handler runs
+  const { userId } = getAuth(req);
+  if (userId) {
+    // add the userId to the body
+    const body: any = req.body ? JSON.parse(req.body) : {};
+    req.body = JSON.stringify({ ...body, userId });
+  }
+  await handler(req, res);
+}
+```
+
+FileRouter  at src/server/uploadthing.ts:
+
+```typescript
+import { createUploadthing, type FileRouter } from "uploadthing/next-legacy";
+
+const f = createUploadthing();
+
+// FileRouter for your app, can contain multiple FileRoutes
+export const ourFileRouter = {
+  // Define as many FileRoutes as you like, each with a unique routeSlug
+  imageUploader: f({ image: { maxFileSize: "4MB" } })
+    // Set permissions and file types for this FileRoute
+    // eslint-disable-next-line
+    .middleware(async ({ req, res }) => {
+      // This code runs on your server before upload
+      try {
+        // eslint-disable-next-line
+        const { userId } = JSON.parse(req.body) as { userId: string };
+	
+		...
+
+```
+
+This removes the error and provides server side validation before upload.
+
+So glad to have finally solved this, and I hope this is helpful!
+
+---
+
+To see the problem checkout b66996fc:
+
 1. Copy .env.example and fill in environment variables
 2. Install dependencies
 
