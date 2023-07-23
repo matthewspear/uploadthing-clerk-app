@@ -2,7 +2,7 @@
 
 ## Solution 🎉
 
-Check the commit 6cafe0a0 changes to show what solved it, I'll also explain below
+Check the commit [6cafe0a0](https://github.com/matthewspear/uploadthing-clerk-app/commit/6cafe0a0192b3ca8b83c7a5e3f67d3cc4987cf6a) changes to show what solved it, I'll also explain below
 
 I'd like to say a massive thanks to the team at Clerk, specifically @perkinsjr who helped me get to the bottom if it.
 
@@ -63,9 +63,9 @@ This removes the error and provides server side validation before upload.
 
 So glad to have finally solved this, and I hope this is helpful!
 
----
+## Problem
 
-To see the problem checkout b66996fc:
+To see the problem checkout [b66996fc](https://github.com/matthewspear/uploadthing-clerk-app/commit/b66996fcb4a667792998e0ea4c7d775a80315501):
 
 1. Copy .env.example and fill in environment variables
 2. Install dependencies
